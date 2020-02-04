@@ -1,6 +1,9 @@
 <template>
   <div class="td--home">
     <link href="https://fonts.googleapis.com/css?family=Poppins&display=swap" rel="stylesheet">
+    <div class="nameHeader">
+      <h3 @click="editName = true"><span>{{uName ? uName : 'Hari\'s'}}</span> - TODO</h3>
+    </div>
     <div class="box">
         <div class="box-header flex justify-between">
           <input type="text" class="input" v-model="tdata" placeholder="Type here....">
@@ -26,6 +29,16 @@
         </div>
       </div>
     </div>
+    <div class="footer-pop" v-if="editName">
+      <div class="flex justify-between">
+        <input type="text" v-model="uName" class="input" placeholder="Enter your name">
+        <button @click="savename" class="saveBtn">Save</button>
+      </div>
+      <p class="flex justify-between">
+        <span>* Click the name for change in future.</span>
+        <span @click="editName = false">x</span>
+      </p>
+    </div>
   </div>
 </template>
 
@@ -35,10 +48,19 @@ export default {
   name: 'app',
   data() { 
     return {
-      tdata:''
+      tdata:'',
+      uName: '',
+      editName:false
     }
   },
- 
+  created() {
+    this.uName = window.localStorage.getItem('todooName') || '';
+    if(this.uName != ''){
+      this.editName = false;
+    } else {
+      this.editName = true;
+    }
+  },
   computed: {
     tdlist () {
       return this.$store.getters.todos
@@ -62,6 +84,14 @@ export default {
       if(!confirm('Are you sure...?')) return
       this.$store.dispatch('clearTodoAll');
       window.localStorage.setItem("todoo",JSON.stringify(this.$store.getters.todos));
+    },
+    savename(){
+      if(this.uName != '' && this.uName.length < 9){
+        window.localStorage.setItem("todooName", this.uName);
+        this.editName = false;
+      } else {
+        alert('Max 8 chars & No empty values.');
+      }
     }
   }
 }
@@ -80,6 +110,55 @@ export default {
   .td--home{
     padding-top: 30px;
     min-height: 100vh;
+    margin:auto;
+  }
+  .footer-pop {
+    position: fixed;
+    bottom:0;
+    left:0;
+    right:0;
+    padding:10px;
+    padding-bottom:0;
+    background-color: #00B8D9;
+    margin:auto;
+  }
+  .footer-pop p{
+    margin:0;
+    font-size:10px;
+    padding-top: 5px;
+    color: #fff9;
+  }
+  .nameHeader {
+    text-align:center;
+  }
+  .nameHeader h3 {
+    margin:0;
+    margin-bottom:30px;
+    color: #36B37E;
+  }
+  @media only screen and (min-width: 768px){
+    .td--home{
+      width:50%;
+    }
+    .footer-pop {
+      width:50%;
+    }
+  }
+  @media only screen and (min-width: 1024px){
+    .td--home{
+      width:40%;
+    }
+    .footer-pop {
+      width:40%;
+    }
+  }
+  @media only screen and (min-width: 1440px){
+    .td--home{
+      width:30%;
+    }
+    .footer-pop {
+      width:30%;
+    }
   }
   .justify-between {
     justify-content:space-between;
@@ -104,6 +183,10 @@ export default {
   .input::placeholder {
     color:#fff;
   }
+  .footer-pop .input{
+    background-color: #00B8D9;
+    border-bottom:1px solid #fff;
+  }
   .empty {
     text-align: center;
   }
@@ -119,6 +202,14 @@ export default {
     font-size: 22px;
     border: none;
     border-radius: 50%;
+    line-height: 1;
+    background-color: #fff;
+    color: #0747A6;
+  }
+  .saveBtn {
+    margin-left: 10px;
+    background: none;
+    border: none;
     line-height: 1;
     background-color: #fff;
     color: #0747A6;
