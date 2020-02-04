@@ -2,7 +2,7 @@
   <div class="td--home">
     <link href="https://fonts.googleapis.com/css?family=Poppins&display=swap" rel="stylesheet">
     <div class="nameHeader">
-      <h3 @click="editName = true"><span>{{uName ? uName : 'Hari\'s'}}</span> - TODO</h3>
+      <h3 @click="editName = true"><span class="cursor">{{uName ? uName : 'Hari\'s'}}</span> - TODO</h3>
     </div>
     <div class="box">
         <div class="box-header flex justify-between">
@@ -16,11 +16,11 @@
         <div v-if="tdlist.length > 0">
           <p class="flex justify-between lhead">
             <span>Total : {{tdlist.length}}</span>
-            <span class="delall" @click="removeAll">Delete All</span>
+            <span class="delall cursor" @click="removeAll">Delete All</span>
           </p>
           <ul class="list">
             <li v-for="(x, index) in tdlist" :key="index" class="flex justify-between">
-              <span class="w-90">{{x}}</span> <span class="delone" @click="removeTodo(index)">x</span>
+              <span class="w-90">{{x}}</span> <span class="delone cursor" @click="removeTodo(index)">x</span>
             </li>
           </ul>
         </div>
@@ -36,7 +36,7 @@
       </div>
       <p class="flex justify-between">
         <span>* Click the name for change in future.</span>
-        <span @click="editName = false">x</span>
+        <span @click="editName = false" class="cursor">x</span>
       </p>
     </div>
   </div>
@@ -106,6 +106,9 @@ export default {
   body {
     margin:0;
     padding:0;
+  }
+  .cursor {
+    cursor:pointer;
   }
   .td--home{
     padding-top: 30px;
