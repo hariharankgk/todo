@@ -6,11 +6,16 @@
     </div>
     <div class="box">
         <div class="box-header flex justify-between">
-          <input type="text" class="input" v-model="tdata" placeholder="Type here....">
+          <input type="text" class="input" v-model="tdata" placeholder="Type here...." v-focus>
           <button @click="addTotdo" class="addBtn">+</button>
         </div>
     </div>
     <br/>
+     <div class="flex filters" v-if="todoItems.length > 0">
+      <span :class="{'active' : tdfilter == -1}" @click="tdfilter = -1">All</span>
+      <span :class="{'active' : tdfilter == 0}" @click="tdfilter = 0">Pending</span>
+      <span :class="{'active' : tdfilter == 1}" @click="tdfilter = 1">Completed</span>
+    </div>
     <div class="box">
       <div class="box-body">
         <div v-if="tdlist.length > 0">
@@ -19,8 +24,10 @@
             <span class="delall cursor" @click="removeAll">Delete All</span>
           </p>
           <ul class="list">
-            <li v-for="(x, index) in tdlist" :key="index" class="flex justify-between">
-              <span class="w-90">{{x}}</span> <span class="delone cursor" @click="removeTodo(index)">x</span>
+            <li v-for="(x) in tdlist" :key="x.key" class="flex justify-between" :class="{'completed' : x.done}">
+              <span><input type="checkbox" :checked="x.done" @change="toggleTodo(x)" class="check"><span class="check-custom"></span></span>
+              <span class="w-90">{{x.value}}</span> 
+              <span class="delone cursor" @click="removeTodo(x.value)">x</span>
             </li>
           </ul>
         </div>
@@ -50,7 +57,17 @@ export default {
     return {
       tdata:'',
       uName: '',
+      tdfilter: -1,
+      todoItems: JSON.parse(window.localStorage.getItem('todoo') || '[]'),
       editName:false
+    }
+  },
+  directives: {
+    focus: {
+      // directive definition
+      inserted: function (el) {
+        el.focus()
+      }
     }
   },
   created() {
@@ -62,28 +79,54 @@ export default {
     }
   },
   computed: {
-    tdlist () {
-      return this.$store.getters.todos
+    tdlist() {
+      const todos = this.todoItems;
+      if(this.tdfilter >= 0){
+        let dval = this.tdfilter == 1 ? true : false;
+        return todos.filter(x => x.done === dval);
+      } else {
+        return this.todoItems;
+      }
     }
   },
   methods: {
     addTotdo(){
       if(this.tdata != ''){
-        this.$store.dispatch('saveTodo', this.tdata);
-        window.localStorage.setItem("todoo",JSON.stringify(this.$store.getters.todos));
+        // this.$store.dispatch('saveTodo', this.tdata);
+        this.todoItems.push({'value':this.tdata, 'done': false, 'key':Math.floor(Math.random() * 10000)});
+        this.setlocal();
         this.tdata = '';
+        this.tdfilter = 0;
       } else {
         alert('Please type a valid todo.');
       }
     },
     removeTodo(td){
-      this.$store.dispatch('clearTodo', td);
-      window.localStorage.setItem("todoo",JSON.stringify(this.$store.getters.todos));
+      // this.$store.dispatch('clearTodo', td);
+      const rval = this.todoItems.indexOf(td);
+      this.todoItems.splice(rval, 1);
+      this.setlocal();
     },
     removeAll(){
       if(!confirm('Are you sure...?')) return
-      this.$store.dispatch('clearTodoAll');
-      window.localStorage.setItem("todoo",JSON.stringify(this.$store.getters.todos));
+      // this.$store.dispatch('clearTodoAll');
+      // this.tdlist.forEach(d => this.todoItems.splice(dtodos.findIndex(t => t.value == d.value)));
+      console.log(this.tdfilter);
+      if(this.tdfilter >= 0){
+        console.log(this.tdfilter);
+        let dval = this.tdfilter == 1 ? true : false;
+        this.todoItems.splice(this.todoItems.findIndex(e => e.done === dval),1);
+      } else {
+        this.todoItems = [];
+      }
+      this.setlocal();
+    },
+    toggleTodo(item){
+      const index = this.todoItems.indexOf(item);
+      const td = {'value' : item.value, 'done': !item.done};
+      this.todoItems.splice(index, 1, td); 
+      this.setlocal();
+      this.tdlist;
     },
     savename(){
       if(this.uName != '' && this.uName.length < 9){
@@ -92,6 +135,9 @@ export default {
       } else {
         alert('Max 8 chars & No empty values.');
       }
+    },
+    setlocal(){
+      window.localStorage.setItem("todoo",JSON.stringify(this.todoItems));
     }
   }
 }
@@ -112,7 +158,7 @@ export default {
   }
   .td--home{
     padding-top: 30px;
-    min-height: 100vh;
+    min-height: calc(100vh - 30px);
     margin:auto;
   }
   .footer-pop {
@@ -232,7 +278,6 @@ export default {
   }
   .box .box-body{
     padding:0;
-    padding-bottom:5px;
     border-radius: 5px;
     color:#fff;
     background-color: #2684FF;
@@ -250,6 +295,13 @@ export default {
     border-bottom: 1px solid #ffffff4f;
     padding: 5px 15px;
     align-items: center;
+    position: relative;
+  }
+  .list li.completed{
+    opacity:0.6;
+  }
+  .list li.completed span.w-90{
+    text-decoration: line-through;
   }
   .lhead {
     margin:0;
@@ -266,6 +318,74 @@ export default {
     color:#fff;
     opacity:.6;
     cursor:pointer;
+  }
+  .filters {
+    padding:0px 15px 10px;
+    width:90%;
+    margin:auto;
+  }
+  .filters span {
+    font-size:12px;
+    margin-right:10px;
+  }
+  .filters span.active {
+    background-color: #0052cc;
+    color: #fff;
+    padding: 0px 10px;
+    border-radius: 20px;
+  }
+  /* Custom Radio */
+  .check {
+    position: absolute;
+    opacity: 0;
+  }
+  .check-custom {
+    position: absolute;
+    top: 10px;
+    left: 6px;
+    height: 12px;
+    width: 12px;
+    background-color: transparent;
+    border-radius: 50%;
+    border: 2px solid #fff;
+  }
+  .check-custom::after {
+    position: absolute;
+    content: "";
+    left: 10px;
+    top: 10px;
+    height: 0px;
+    width: 0px;
+    border-radius: 50%;
+    border: solid #009BFF;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(0deg) scale(0);
+    -ms-transform: rotate(0deg) scale(0);
+    transform: rotate(0deg) scale(0);
+    opacity:1;
+  }
+  input.check:checked ~ .check-custom {
+    background-color: #FFFFFF;
+    border-radius: 50%;
+    -webkit-transform: rotate(0deg) scale(1);
+    -ms-transform: rotate(0deg) scale(1);
+    transform: rotate(0deg) scale(1);
+    opacity:1;
+    border: 2px solid #FFFFFF;
+  }
+  input.check:checked ~ .check-custom::after {
+    -webkit-transform: rotate(45deg) scale(1);
+    -ms-transform: rotate(45deg) scale(1);
+    transform: rotate(45deg) scale(1);
+    opacity:1;
+    left: 4px;
+    top: 0;
+    width: 3px;
+    height: 8px;
+    border: solid #009BFF;
+    border-width: 0 2px 2px 0;
+    background-color: transparent;
+    border-radius: 0;
   }
   
 </style>
