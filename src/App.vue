@@ -7,14 +7,14 @@
     <div class="box">
         <div class="box-header flex justify-between">
           <input type="text" class="input" v-model="tdata" placeholder="Type here...." v-focus>
-          <button @click="addTotdo" class="addBtn">+</button>
+          <button @click="addTotdo" class="cursor addBtn">+</button>
         </div>
     </div>
     <br/>
      <div class="flex filters" v-if="todoItems.length > 0">
-      <span :class="{'active' : tdfilter == -1}" @click="tdfilter = -1">All</span>
-      <span :class="{'active' : tdfilter == 0}" @click="tdfilter = 0">Pending</span>
-      <span :class="{'active' : tdfilter == 1}" @click="tdfilter = 1">Completed</span>
+      <span class="cursor" :class="{'active' : tdfilter == -1}" @click="tdfilter = -1">All</span>
+      <span class="cursor" :class="{'active' : tdfilter == 0}" @click="tdfilter = 0">Pending</span>
+      <span class="cursor" :class="{'active' : tdfilter == 1}" @click="tdfilter = 1">Completed</span>
     </div>
     <div class="box">
       <div class="box-body">
@@ -25,7 +25,7 @@
           </p>
           <ul class="list">
             <li v-for="(x) in tdlist" :key="x.key" class="flex justify-between" :class="{'completed' : x.done}">
-              <span><input type="checkbox" :checked="x.done" @change="toggleTodo(x)" class="check"><span class="check-custom"></span></span>
+              <span><input type="checkbox" :checked="x.done" @change="toggleTodo(x)" class="check cursor"><span class="check-custom cursor"></span></span>
               <span class="w-90">{{x.value}}</span> 
               <span class="delone cursor" @click="removeTodo(x.value)">x</span>
             </li>
@@ -255,6 +255,10 @@ export default {
     background-color: #fff;
     color: #0747A6;
   }
+  .addBtn:focus {
+    border:none;
+    outline:0;
+  }
   .saveBtn {
     margin-left: 10px;
     background: none;
@@ -338,6 +342,9 @@ export default {
   .check {
     position: absolute;
     opacity: 0;
+    left: 6px;
+    top: 10px;
+    z-index: 1;
   }
   .check-custom {
     position: absolute;
