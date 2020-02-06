@@ -6,7 +6,7 @@
     </div>
     <div class="box">
         <div class="box-header flex justify-between">
-          <input type="text" class="input" v-model="tdata" placeholder="Type here...." v-focus>
+          <input type="text" class="input" @keyup.enter="addTotdo" v-model="tdata" placeholder="Type here...." v-focus>
           <button @click="addTotdo" class="cursor addBtn">+</button>
         </div>
     </div>
@@ -108,14 +108,14 @@ export default {
       this.setlocal();
     },
     removeAll(){
-      if(!confirm('Are you sure...?')) return
+      const self = this; 
+      if(!confirm('Are you sure...?')) return false;
       // this.$store.dispatch('clearTodoAll');
-      // this.tdlist.forEach(d => this.todoItems.splice(dtodos.findIndex(t => t.value == d.value)));
-      console.log(this.tdfilter);
-      if(this.tdfilter >= 0){
-        console.log(this.tdfilter);
+      console.log(self.todoItems);
+      if(self.tdfilter >= 0){
         let dval = this.tdfilter == 1 ? true : false;
-        this.todoItems.splice(this.todoItems.findIndex(e => e.done === dval),1);
+        // console.log(self.todoItems.findIndex(v => v.done === dval));
+        self.todoItems.splice(self.todoItems.findIndex(v => v.done === dval), 1);
       } else {
         this.todoItems = [];
       }
