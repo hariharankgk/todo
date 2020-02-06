@@ -1,4 +1,7 @@
-# todo
+# Simple Todo PWA (Vue Js)
+
+### live on
+https://todo-ad773.firebaseapp.com/
 
 ## Project setup
 ```
