@@ -111,11 +111,13 @@ export default {
       const self = this; 
       if(!confirm('Are you sure...?')) return false;
       // this.$store.dispatch('clearTodoAll');
-      console.log(self.todoItems);
       if(self.tdfilter >= 0){
         let dval = this.tdfilter == 1 ? true : false;
-        // console.log(self.todoItems.findIndex(v => v.done === dval));
-        self.todoItems.splice(self.todoItems.findIndex(v => v.done === dval), 1);
+        self.todoItems.filter(todo => todo.done === dval)
+          .forEach(td =>{
+            this.removeTodo(td);
+          });
+        
       } else {
         this.todoItems = [];
       }
